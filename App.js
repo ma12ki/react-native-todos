@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Platform } from 'react-native';
 
 import Header from './Header';
 import Footer from './Footer';
@@ -26,6 +26,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#eee',
     alignItems: 'center',
     justifyContent: 'center',
+    ...Platform.select({
+      android: {
+        paddingTop: 30
+      },
+    }),
   },
   content: {
     flex: 1,
