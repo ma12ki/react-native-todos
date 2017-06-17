@@ -25,6 +25,8 @@ export default class App extends React.Component {
       dataSource: ds.cloneWithRows([]),
     };
     this.setSource = this.setSource.bind(this);
+    this.handleToggleEditing = this.handleToggleEditing.bind(this);
+    this.handleUpdateText = this.handleUpdateText.bind(this);
     this.handleClearComplete = this.handleClearComplete.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
@@ -53,6 +55,32 @@ export default class App extends React.Component {
     });
 
     AsyncStorage.setItem('items', JSON.stringify(items));
+  }
+
+  handleUpdateText(key, text) {
+    const newItems = this.state.items.map((item) => {
+      if (item.key !== key) return item;
+
+      return {
+        ...item,
+        text,
+      };
+    });
+
+    this.setSource(newItems, filterItems(newItems, this.state.filter));
+  }
+
+  handleToggleEditing(key, editing) {
+    const newItems = this.state.items.map((item) => {
+      if (item.key !== key) return item;
+
+      return {
+        ...item,
+        editing,
+      };
+    });
+
+    this.setSource(newItems, filterItems(newItems, this.state.filter));
   }
 
   handleClearComplete() {
@@ -130,6 +158,8 @@ export default class App extends React.Component {
               return (
                 <Row
                   key={key}
+                  onUpdate={(text) => this.handleUpdateText(key, text)}
+                  onToggleEdit={(editing) => this.handleToggleEditing(key, editing)}
                   onRemove={() => this.handleRemoveItem(key)}
                   onComplete={(complete) => this.handleToggleComplete(key, complete)}
                   {...value}
