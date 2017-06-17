@@ -123,6 +123,7 @@ export default class App extends React.Component {
           />
         </View>
         <Footer
+          tasksLeft={filterItems(this.state.items, 'active').length}
           filter={this.state.filter}
           onFilter={this.handleFilter}
         />

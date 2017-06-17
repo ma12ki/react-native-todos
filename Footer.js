@@ -3,9 +3,10 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 export default class Footer extends React.Component {
   render() {
-    const { filter } = this.props;
+    const { filter, tasksLeft } = this.props;
     return (
       <View style={styles.container}>
+        <Text>{tasksLeft} left to do</Text>
         <View style={styles.filters}>
           <TouchableOpacity style={[styles.filter, filter === 'all' && styles.selected]} onPress={() => this.props.onFilter('all')}>
             <Text>All</Text>
@@ -25,6 +26,9 @@ export default class Footer extends React.Component {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   filters: {
     flexDirection: 'row',
