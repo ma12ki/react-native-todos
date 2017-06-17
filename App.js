@@ -17,6 +17,7 @@ export default class App extends React.Component {
     };
     this.setSource = this.setSource.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
+    this.handleToggleComplete = this.handleToggleComplete.bind(this);
     this.handleToggleAllComplete = this.handleToggleAllComplete.bind(this);
   }
 
@@ -26,6 +27,20 @@ export default class App extends React.Component {
       dataSource: this.state.dataSource.cloneWithRows(dataSourceItems),
       ...otherState,
     });
+  }
+
+  handleToggleComplete(key, complete) {
+    const newItems = this.state.items.map((item) => {
+      if (item.key !== key) return item;
+
+      return {
+        ...item,
+        complete,
+      };
+    });
+    const allComplete = newItems.every((item) => item.complete);
+
+    this.setSource(newItems, newItems, { allComplete });
   }
 
   handleToggleAllComplete() {
@@ -74,6 +89,7 @@ export default class App extends React.Component {
               return (
                 <Row
                   key={key}
+                  onComplete={(complete) => this.handleToggleComplete(key, complete)}
                   {...value}
                 />
               );
