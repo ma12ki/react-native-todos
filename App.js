@@ -5,17 +5,26 @@ import Header from './Header';
 import Footer from './Footer';
 import Row from './Row';
 
+const filterItems = (items, filter) => items.filter((item) => {
+  if (filter === 'all') return true;
+  if (filter === 'active') return !item.complete;
+  if (filter === 'completed') return item.complete;
+  throw new Error(`Unknow filter: ${filter}`);
+});
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2 })
     this.state = {
       allComplete: false,
+      filter: 'all',
       value: '',
       items: [],
       dataSource: ds.cloneWithRows([]),
     };
     this.setSource = this.setSource.bind(this);
+    this.handleFilter = this.handleFilter.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
@@ -30,10 +39,14 @@ export default class App extends React.Component {
     });
   }
 
+  handleFilter(filter) {
+    this.setSource(this.state.items, filterItems(this.state.items, filter), { filter });
+  }
+
   handleRemoveItem(key) {
     const newItems = this.state.items.filter((item) => item.key !== key);
 
-    this.setSource(newItems, newItems);
+    this.setSource(newItems, filterItems(newItems, this.state.filter));
   }
 
   handleToggleComplete(key, complete) {
@@ -47,7 +60,7 @@ export default class App extends React.Component {
     });
     const allComplete = newItems.every((item) => item.complete);
 
-    this.setSource(newItems, newItems, { allComplete });
+    this.setSource(newItems, filterItems(newItems, this.state.filter), { allComplete });
   }
 
   handleToggleAllComplete() {
@@ -57,7 +70,7 @@ export default class App extends React.Component {
       complete,
     }));
 
-    this.setSource(newItems, newItems, { allComplete: complete });
+    this.setSource(newItems, filterItems(newItems, this.state.filter), { allComplete: complete });
   }
 
   handleAddItem() {
@@ -74,7 +87,7 @@ export default class App extends React.Component {
       },
     ];
 
-    this.setSource(newItems, newItems, { value: '' });
+    this.setSource(newItems, filterItems(newItems, this.state.filter), { value: '' });
   }
 
   render() {
@@ -109,7 +122,10 @@ export default class App extends React.Component {
             }}
           />
         </View>
-        <Footer />
+        <Footer
+          filter={this.state.filter}
+          onFilter={this.handleFilter}
+        />
       </View>
     );
   }
