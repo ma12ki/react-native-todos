@@ -17,6 +17,7 @@ export default class App extends React.Component {
     };
     this.setSource = this.setSource.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
+    this.handleRemoveItem = this.handleRemoveItem.bind(this);
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
     this.handleToggleAllComplete = this.handleToggleAllComplete.bind(this);
   }
@@ -27,6 +28,12 @@ export default class App extends React.Component {
       dataSource: this.state.dataSource.cloneWithRows(dataSourceItems),
       ...otherState,
     });
+  }
+
+  handleRemoveItem(key) {
+    const newItems = this.state.items.filter((item) => item.key !== key);
+
+    this.setSource(newItems, newItems);
   }
 
   handleToggleComplete(key, complete) {
@@ -89,6 +96,7 @@ export default class App extends React.Component {
               return (
                 <Row
                   key={key}
+                  onRemove={() => this.handleRemoveItem(key)}
                   onComplete={(complete) => this.handleToggleComplete(key, complete)}
                   {...value}
                 />
