@@ -6,6 +6,9 @@ export default class Header extends React.Component {
     return (
         <View style={styles.header}>
             <TextInput
+                value={this.props.value}
+                onChangeText={this.props.onChange}
+                onSubmitEditing={this.props.onAddItem}
                 placeholder="What you wanna do?"
                 blurOnSubmit={false}
                 returnKeyType="done"
