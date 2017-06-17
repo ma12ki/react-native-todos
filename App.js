@@ -1,19 +1,31 @@
 import React from 'react';
-import { StyleSheet, Text, View, Platform } from 'react-native';
+import { StyleSheet, Text, View, Platform, ListView, Keyboard } from 'react-native';
 
 import Header from './Header';
 import Footer from './Footer';
+import Row from './Row';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2 })
     this.state = {
       allComplete: false,
       value: '',
       items: [],
+      dataSource: ds.cloneWithRows([]),
     };
+    this.setSource = this.setSource.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
     this.handleToggleAllComplete = this.handleToggleAllComplete.bind(this);
+  }
+
+  setSource(items, dataSourceItems, otherState = {}) {
+    this.setState({
+      items,
+      dataSource: this.state.dataSource.cloneWithRows(dataSourceItems),
+      ...otherState,
+    });
   }
 
   handleToggleAllComplete() {
@@ -23,12 +35,7 @@ export default class App extends React.Component {
       complete,
     }));
 
-    console.table(newItems);
-
-    this.setState({
-      items: newItems,
-      allComplete: complete,
-    });
+    this.setSource(newItems, newItems, { allComplete: complete });
   }
 
   handleAddItem() {
@@ -45,10 +52,7 @@ export default class App extends React.Component {
       },
     ];
 
-    this.setState({
-      items: newItems,
-      value: '',
-    });
+    this.setSource(newItems, newItems, { value: '' });
   }
 
   render() {
@@ -61,9 +65,25 @@ export default class App extends React.Component {
           onChange={(value) => this.setState({ value })}
         />
         <View style={styles.content}>
-          <Text>Open up App.js to start working on your app!</Text>
-          <Text>Changes you make will automatically reload.</Text>
-          <Text>Shake your phone to open the developer menu.</Text>
+          <ListView
+            style={styles.list}
+            enableEmptySections
+            dataSource={this.state.dataSource}
+            onScroll={() => Keyboard.dismiss()}
+            renderRow={({key, ...value}) => {
+              return (
+                <Row
+                  key={key}
+                  {...value}
+                />
+              );
+            }}
+            renderSeparator={(sectionId, rowId) => {
+              return (
+                <View key={rowId} style={styles.separator} />
+              );
+            }}
+          />
         </View>
         <Footer />
       </View>
@@ -75,7 +95,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#eee',
-    alignItems: 'center',
+    alignItems: 'stretch',
     justifyContent: 'center',
     ...Platform.select({
       android: {
@@ -85,5 +105,12 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  list: {
+    backgroundColor: '#FFF',
+  },
+  separator: {
+    borderWidth: 1,
+    borderColor: '#eee',
   },
 });
