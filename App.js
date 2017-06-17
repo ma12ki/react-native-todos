@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Platform, ListView, Keyboard } from 'react-native';
+import { StyleSheet, Text, View, Platform, ListView, Keyboard, AsyncStorage } from 'react-native';
 
 import Header from './Header';
 import Footer from './Footer';
@@ -24,11 +24,24 @@ export default class App extends React.Component {
       dataSource: ds.cloneWithRows([]),
     };
     this.setSource = this.setSource.bind(this);
+    this.handleClearComplete = this.handleClearComplete.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
     this.handleToggleAllComplete = this.handleToggleAllComplete.bind(this);
+  }
+
+  componentWillMount() {
+    AsyncStorage.getItem('items')
+      .then((json) => {
+        try {
+          const items = JSON.parse(json);
+          this.setSource(items, filterItems(items, this.state.filter));
+        } catch (jsonParseError) {
+
+        }
+      });
   }
 
   setSource(items, dataSourceItems, otherState = {}) {
@@ -37,6 +50,13 @@ export default class App extends React.Component {
       dataSource: this.state.dataSource.cloneWithRows(dataSourceItems),
       ...otherState,
     });
+
+    AsyncStorage.setItem('items', JSON.stringify(items));
+  }
+
+  handleClearComplete() {
+    const newItems = filterItems(this.state.items, 'active');
+    this.setSource(newItems, filterItems(newItems, this.state.filter));
   }
 
   handleFilter(filter) {
@@ -126,6 +146,7 @@ export default class App extends React.Component {
           tasksLeft={filterItems(this.state.items, 'active').length}
           filter={this.state.filter}
           onFilter={this.handleFilter}
+          onClearComplete={this.handleClearComplete}
         />
       </View>
     );
